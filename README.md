@@ -78,11 +78,13 @@ We can now plot the MCMC chain
 ```julia
 
 
-#Inputs:
+#Retrieve the matrix of posterior draws of μ and σ2:
+
 μ = MCMC_sim[1]
 σ2 = MCMC_sim[2]
 
-#Use a "burn-in period of 200"
+#We use a "burn-in" period of 200 when plotting the posterior draws from the Gibbs sampler:
+
 plot(μ[200:length(μ[:,1]),1], xlabel="MCMC iteration", ylabel="μ", label="μ1", color="blue", linewidth=1.5, guidefont=b, titlefont=b, tickfont=b, legendfont=b, title="", ylim=[5, 8])
 plot!(μ[200:length(μ[:,1]),2], label="μ2", color="red", linewidth=1.5)
 plot!(μ[200:length(μ[:,1]),3], label="μ3", color="grey", linewidth=1.5)
