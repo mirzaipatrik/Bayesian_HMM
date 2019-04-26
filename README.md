@@ -4,6 +4,9 @@
 
 This project can be used to perform Bayesian parameter estimation of hidden Markov models. A brief introduction to the different function are given below. Some applications include:
 
+-Estimation of the mean and variance in the different states
+-Use posterior draws from the latent state sequence to estimate the time point for a regime change in data
+
 
 Initialize:
 
@@ -73,7 +76,7 @@ n_iter = 2000  #Number of iterations
 MCMC_sim = main_function(n_states, n_iter, Γ, dat, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
 ```
 
-We can now plot the MCMC chain
+We can now plot the MCMC chain. For illustrative purposes, we only plot the posterior draws of the different means.
 
 ```julia
 
