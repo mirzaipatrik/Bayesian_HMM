@@ -31,7 +31,12 @@ include("state_dep_diag.jl")
 include("backward_function.jl")
 include("main_function.jl")
 
-pyplot(dpi=300)  #set backend for plotting -- this is optional
+#Optional plotting options:
+a=font(20,"Computer Modern")
+b=font(18,"Computer Modern")
+c=font(16,"Computer Modern")
+d=font(14,"Computer Modern")
+pyplot(dpi=300)  #set backend for plotting -- gives high-resolution when saving the plot
 
 ```
 
@@ -55,8 +60,6 @@ savefig("name_of_figure")
 Let us now perform a Bayesian parameter estimation of the HMM. We need to specify the number of states, number of iterations and the data, the initial transition probaiblity matrix, the raw data and the hyperparameters:
 
 ```julia
-
-
 #Inputs:
 n_states = 3  #Number of states
 n_iter = 2000  #Number of iterations
@@ -67,8 +70,23 @@ n_iter = 2000  #Number of iterations
 μ_hyper = [0.8, 1, 1.2]
 κ_hyper = [1,1,1]
 
-MCMC_simulation = main_function(n_states, n_iter, Γ, dat, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
+MCMC_sim = main_function(n_states, n_iter, Γ, dat, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
+```
+
+We can now plot the MCMC chain
+
+```julia
+
+
+#Inputs:
+μ = MCMC_sim[1]
+σ2 = MCMC_sim[2]
+
+#Use a "burn-in period of 200"
+plot(μ[200:length(μ[:,1]),1], xlabel="MCMC iteration", ylabel="μ", label="μ1", color="blue", linewidth=1.5, guidefont=b, titlefont=b, tickfont=b, legendfont=b, title="", ylim=[5, 8])
+plot!(μ[200:length(μ[:,1]),2], label="μ2", color="red", linewidth=1.5)
+plot!(μ[200:length(μ[:,1]),3], label="μ3", color="grey", linewidth=1.5)
 
 
 ```
-
+![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/posterior_mean_draws.png)
