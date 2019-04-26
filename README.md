@@ -4,8 +4,8 @@
 
 This project can be used to perform Bayesian parameter estimation of hidden Markov models. A brief introduction to the different function are given below. Some applications include:
 
--Estimation of the mean and variance in the different states
--Use posterior draws from the latent state sequence to estimate the time point for a regime change in data
+- Estimation of the mean and variance in the different states
+- Use posterior draws from the latent state sequence to estimate the time point for a regime change in data
 
 
 Initialize:
