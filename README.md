@@ -1,4 +1,4 @@
-# Bayesian HMM in Julia -- A quick overview
+# Bayesian HMMs in Julia -- A quick overview
 
 ### Author: Patrik Mirzai
 
