@@ -4,7 +4,7 @@
 
 This project can be used to perform Bayesian parameter estimation of hidden Markov models. A brief introduction to the different function are given below. Some applications include:
 
-- Estimation of the mean and variance in the different states
+- Estimation of the mean and variance of the different states
 - Use posterior draws from the latent state sequence to estimate the time point for a regime change in data
 
 
@@ -39,7 +39,7 @@ a=font(20,"Computer Modern")
 b=font(18,"Computer Modern")
 c=font(16,"Computer Modern")
 d=font(14,"Computer Modern")
-pyplot(dpi=300)  #set backend for plotting -- gives high-resolution when saving the plot
+pyplot(dpi=300)  #Set backend for plotting -- gives high resolution when saving the plot
 
 ```
 
@@ -76,11 +76,9 @@ n_iter = 2000  #Number of iterations
 MCMC_sim = main_function(n_states, n_iter, Γ, dat, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
 ```
 
-We can now plot the MCMC chain. For illustrative purposes, we only plot the posterior draws of the different means.
+We can now plot the MCMC chain. A plot of the posterior draws of the different means is given, but posterior draws of the variances can be obtained analogously.
 
 ```julia
-
-
 #Retrieve the matrix of posterior draws of μ and σ2:
 μ = MCMC_sim[1]
 σ2 = MCMC_sim[2]
@@ -89,7 +87,5 @@ We can now plot the MCMC chain. For illustrative purposes, we only plot the post
 plot(μ[200:length(μ[:,1]),1], xlabel="MCMC iteration", ylabel="μ", label="μ1", color="blue", linewidth=1.5, guidefont=b, titlefont=b, tickfont=b, legendfont=b, title="", ylim=[5, 8])
 plot!(μ[200:length(μ[:,1]),2], label="μ2", color="red", linewidth=1.5)
 plot!(μ[200:length(μ[:,1]),3], label="μ3", color="grey", linewidth=1.5)
-
-
 ```
 ![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/posterior_mean_draws.png)
