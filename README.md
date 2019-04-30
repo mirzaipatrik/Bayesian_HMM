@@ -56,7 +56,7 @@ savefig("name_of_figure")
 =#
 ```
 
-![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/Traceplot.png)
+![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/Functions/Traceplot.png)
 
 # Parameter estimation
 
@@ -88,4 +88,4 @@ plot(μ[200:length(μ[:,1]),1], xlabel="MCMC iteration", ylabel="μ [nl]", label
 plot!(μ[200:length(μ[:,1]),2], label="μ2", color="red", linewidth=1.5)
 plot!(μ[200:length(μ[:,1]),3], label="μ3", color="grey", linewidth=1.5)
 ```
-![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/posterior_mean_draws.png)
+![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/Functions/posterior_mean_draws.png)
