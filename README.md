@@ -1,4 +1,4 @@
-# Bayesian HMMs in Julia -- A quick overview
+# Bayesian Hidden Markov Models in Julia -- A Quick Overview
 
 ### Author: Patrik Mirzai
 
