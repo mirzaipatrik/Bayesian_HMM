@@ -89,3 +89,13 @@ plot!(μ[200:length(μ[:,1]),2], label="μ2", color="red", linewidth=1.5)
 plot!(μ[200:length(μ[:,1]),3], label="μ3", color="grey", linewidth=1.5)
 ```
 ![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/Functions/posterior_mean_draws.png)
+
+
+# References
+Following references have been used in the implementation of the Gibbs sampler:
+Cappé, O., Moulines, E. and Rydén, T. (2005), Inference in Hidden Markov Models, New York: Springer-Verlag.
+
+Rydén, T. (2008), ‘EM versus Markov chain Monte Carlo for estimation of hidden Markov models: a computational perspective’, Bayesian Analysis, Vol. 3.
+
+Zucchini, W. and MacDonald, I. (2009), Hidden Markov Models for Time Series:
+An Introduction Using R, Chapman & Hall/CRC.
