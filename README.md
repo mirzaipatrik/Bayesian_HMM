@@ -96,6 +96,8 @@ Following references have been used in the implementation of the Gibbs sampler:
 
 - Cappé, O., Moulines, E. and Rydén, T. (2005), Inference in Hidden Markov Models, New York: Springer-Verlag.
 
+- Gelman, A., Carlin, J., Stern, H., Dunson, D., Vehtari, A. and Rubbin, D. (2014), Bayesian Data Analysis, third edn, Taylor & Francis Group.
+
 - Rydén, T. (2008), ‘EM versus Markov chain Monte Carlo for estimation of hidden Markov models: a computational perspective’, Bayesian Analysis, Vol. 3.
 
 - Zucchini, W. and MacDonald, I. (2009), Hidden Markov Models for Time Series:
