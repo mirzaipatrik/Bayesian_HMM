@@ -1,4 +1,4 @@
-function main_function(n_states, len_of_gibbs_seq, Γ, raw_data, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
+function main_function(n_states, len_of_gibbs_seq, burn_in, Γ, raw_data, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
     n_obs = length(raw_data)
     MC_chain = MC_simulation(Γ, n_obs)  #Init a random MC
 
@@ -9,6 +9,12 @@ function main_function(n_states, len_of_gibbs_seq, Γ, raw_data, υ_hyper, σ2_h
     #Create an array that is used to store latest change of states
     latest_change = 1
     state_register = []
+
+    #Empty vector that stores the likelihood for each sweep
+    likelihood_vec = []
+
+    #Create matrix in order to compute posterior tpm, Γ
+    Γ_output = zeros(n_states, n_states)
 
     #start our gibbs sampler
     for i = 1:len_of_gibbs_seq
@@ -52,11 +58,14 @@ function main_function(n_states, len_of_gibbs_seq, Γ, raw_data, υ_hyper, σ2_h
         #Compute the backward probabilities
         back_mat = backward_function(n_states, raw_data, Γ, latest_μ, latest_σ2)
 
+        #Append the likelihood to the vector
+        append!(likelihood_vec, back_mat[2])
+
         #Let us now do the forward simulation in the Gibbs sampler
 
         temp_prob_vec = fill(0.0, n_states)  #A placeholder
         for m=1:n_states
-            temp_prob_vec[m] = initial_dist[m]*(pdf(Normal(latest_μ[m], sqrt(latest_σ2[m])), raw_data[1]))*back_mat[1,m]
+            temp_prob_vec[m] = initial_dist[m]*(pdf(Normal(latest_μ[m], sqrt(latest_σ2[m])), raw_data[1]))*back_mat[1][1,m]
         end
         #Normalize temp_vec
         temp_prob_vec = temp_prob_vec/sum(temp_prob_vec)
@@ -69,7 +78,7 @@ function main_function(n_states, len_of_gibbs_seq, Γ, raw_data, υ_hyper, σ2_h
             latest_state = MC_chain[j-1]  #Use to condition on the current state
 
             for m=1:n_states  #Loop through all states
-                temp_prob_vec[m] = Γ[latest_state, m]*(pdf(Normal(latest_μ[m], sqrt(latest_σ2[m])), raw_data[j]))*back_mat[j, m]
+                temp_prob_vec[m] = Γ[latest_state, m]*(pdf(Normal(latest_μ[m], sqrt(latest_σ2[m])), raw_data[j]))*back_mat[1][j, m]
             end
             #Normalize the temp_prob_vec
             temp_prob_vec = temp_prob_vec/sum(temp_prob_vec)
@@ -77,17 +86,41 @@ function main_function(n_states, len_of_gibbs_seq, Γ, raw_data, υ_hyper, σ2_h
             MC_chain[j] = rand(Categorical(temp_prob_vec))
         end
 
+        #Compute the complete log-likelihood
+        normalized_log_likelihood = transpose(initial_dist)*state_dep_diag(n_states, raw_data[1], latest_μ, latest_σ2)*back_mat[1][1,:]
+        unnormalized_log_likelihood = log(normalized_log_likelihood) + back_mat[2]
+        append!(likelihood_vec, unnormalized_log_likelihood)
+        #Compute the latest time the process visits the calibration period
+
         for l in 1:(length(MC_chain)-1)
             if MC_chain[l+1]!=MC_chain[l]
                 latest_change = l
             end
         end
+        #Append the latest time point for a change to state_register
         append!(state_register, latest_change)
+
+        #Add the number of transitions to the Γ_output matrix
+        if i>burn_in
+            Γ_output = Γ_output + transition_counter_mat
+        end
 
 
 
     end
 
-    return σ2_post_draws, μ_post_draws, MC_chain, Γ, state_register
+    #Normalize the posterior transition probabilities
+    Γ_output = convert(Array{Float64}, Γ_output)
+    for l = 1:n_states
+        Γ_output[l,:] = Γ_output[l,:]/sum(Γ_output[l,:])
+    end
+
+    #Compute the AIC and BIC approximations
+    maximum_log_likelihood = maximum(likelihood_vec)
+    n_param = n_states*n_states - 1 + 2*n_states
+    AIC_score = AIC_approx(maximum_log_likelihood, n_param)
+    BIC_score = BIC_approx(maximum_log_likelihood, n_param, n_obs)
+
+    return μ_post_draws, σ2_post_draws, MC_chain, Γ, state_register, Γ_output, AIC_score, BIC_score
 
 end
