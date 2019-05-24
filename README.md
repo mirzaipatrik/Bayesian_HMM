@@ -2,13 +2,13 @@
 
 ### Author: Patrik Mirzai
 
-This project can be used to perform Bayesian parameter estimation of hidden Markov models. A brief introduction to the different function are given below. Some applications include:
+This project can be used to perform Bayesian parameter estimation of hidden Markov models. A brief introduction to the different functions are given below. Some applications include:
 
 - Estimation of the mean and variance of the different states
 - Use posterior draws from the latent state sequence to estimate the time point for a regime change in data
 
 
-Initialize:
+## Initialize code:
 
 ```julia
 using CSV
@@ -58,7 +58,7 @@ savefig("name_of_figure")
 
 ![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/Functions/Traceplot.png)
 
-# Parameter estimation
+## Parameter estimation
 
 Let us now perform a Bayesian parameter estimation of the HMM. We need to specify the number of states, number of iterations and the data, the initial transition probaiblity matrix, the raw data and the hyperparameters:
 
@@ -70,7 +70,7 @@ n_iter = 2000  #Number of iterations
 #These are our hyperparameters:
 υ_hyper = [1,1,1]
 σ2_hyper = [1,1,1]
-μ_hyper = [0.8, 1, 1.2]
+μ_hyper = [4, 5, 6]
 κ_hyper = [1,1,1]
 
 MCMC_sim = main_function(n_states, n_iter, Γ, dat, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
@@ -90,8 +90,42 @@ plot!(μ[200:length(μ[:,1]),3], label="μ3", color="grey", linewidth=1.5)
 ```
 ![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/Functions/posterior_mean_draws.png)
 
+## Estimation of the time point for a regime change
+Let us now estimate the time point for a regime change in the data. Let's run the Gibbs sampler again:
 
-# References
+```julia
+#Read the data set:
+regime_data = CSV.read("regime_data.txt")
+
+#Plot the data set:
+plot(regime_data[:,1], color="blue", label="", linewidth=2.5, ylabel="Volume [nl]", xlabel="Observation", guidefont=a, titlefont=a, tickfont=a, legendfont=a)
+```
+
+
+
+```julia
+#Set initial transition probability matrix:
+Γ_2 = [0.5 0.5; 0.5 0.5]
+
+#Setting hyperparameters:
+υ_hyper = [1,1]
+σ2_hyper = [1,1]
+μ_hyper = [0.5, 1.8]
+κ_hyper = [1,1]
+
+#Run the Gibbs sampler:
+newest_test = main_function(2, 11000, 1000, Γ_newest, regime_data[:,1], υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
+
+#=
+ξ is the last time point in the initial regime. The Gibbs sampler allows for a posterior distribution of this quanttity.
+=#
+ξ = newest_test[5][1001:11000]  #Discard the initial 1000 draws as "burn-in" values.
+
+#Histogram over the posteior distribution:
+histogram(ξ, guidefont=a, titlefont=a, tickfont=a, legendfont=a, xlims=[60000, 105000], label="", xlabel="ξ", ylabel="Frequency", color="blue", bins=50)
+```
+
+## References
 Following references have been used in the implementation of the Gibbs sampler:
 
 - Cappé, O., Moulines, E. and Rydén, T. (2005), Inference in Hidden Markov Models, New York: Springer-Verlag.
