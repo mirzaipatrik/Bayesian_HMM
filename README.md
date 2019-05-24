@@ -75,7 +75,10 @@ n_iter = 2000  #Number of iterations
 μ_hyper = [4, 5, 6]
 κ_hyper = [1,1,1]
 
-MCMC_sim = main_function(n_states, n_iter, Γ, dat, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
+#The burn-in values are used for computing the AIC and BIC
+burn_in = 1000
+
+MCMC_sim = main_function(n_states, n_iter, burn_in, Γ, dat, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
 ```
 
 We can now plot the MCMC chain. A plot of the posterior draws of the different means is given, but posterior draws of the variances can be obtained analogously.
