@@ -95,6 +95,15 @@ plot!(μ[200:length(μ[:,1]),3], label="μ3", color="grey", linewidth=1.5)
 ```
 ![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/Functions/posterior_mean_draws.png)
 
+Retrieve AIC and BIC scores:
+
+```julia
+#AIC and BIC scores
+AIC_1 = MCMC_sim[7]
+BIC_1 = MCMC_sim[8]
+```
+
+
 ## Estimation of the time point for a regime change
 Let us now estimate the time point for a regime change in the data. Let's run the Gibbs sampler again:
 
