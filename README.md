@@ -62,7 +62,7 @@ savefig("name_of_figure")
 
 ## Parameter estimation
 
-Let us now perform a Bayesian parameter estimation of the HMM. We need to specify the number of states, number of iterations and the data, the initial transition probaiblity matrix, the raw data and the hyperparameters:
+Let us now perform a Bayesian parameter estimation of the HMM. We need to specify the number of states, the number of iterations, the burn-in period, the initial transition probaiblity matrix, the raw data, and the hyperparameters:
 
 ```julia
 #Inputs:
