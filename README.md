@@ -100,6 +100,7 @@ regime_data = CSV.read("regime_data.txt")
 #Plot the data set:
 plot(regime_data[:,1], color="blue", label="", linewidth=2.5, ylabel="Volume [nl]", xlabel="Observation", guidefont=a, titlefont=a, tickfont=a, legendfont=a)
 ```
+![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/Functions/BGA_plot.png)
 
 
 
@@ -124,6 +125,9 @@ newest_test = main_function(2, 11000, 1000, Γ_newest, regime_data[:,1], υ_hype
 #Histogram over the posteior distribution:
 histogram(ξ, guidefont=a, titlefont=a, tickfont=a, legendfont=a, xlims=[60000, 105000], label="", xlabel="ξ", ylabel="Frequency", color="blue", bins=50)
 ```
+
+![grouped](https://github.com/mirzaipatrik/Bayesian_HMM/blob/master/Functions/Stable_state.png)
+
 
 ## References
 Following references have been used in the implementation of the Gibbs sampler:
