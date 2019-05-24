@@ -81,7 +81,7 @@ burn_in = 1000
 MCMC_sim = main_function(n_states, n_iter, burn_in, Γ, dat, υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
 ```
 
-We can now plot the MCMC chain. A plot of the posterior draws of the different means is given, but posterior draws of the variances can be obtained analogously.
+We can now plot the MCMC chain. A plot of the posterior draws of the different means is given. The posterior draws of the variances can be obtained analogously.
 
 ```julia
 #Retrieve the matrix of posterior draws of μ and σ2:
