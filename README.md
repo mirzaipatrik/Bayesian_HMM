@@ -4,7 +4,7 @@
 
 This project can be used to perform Bayesian parameter estimation of hidden Markov models. A brief introduction to the different functions are given below. Some applications include:
 
-- Estimation of the mean and variance of the different states
+- Estimation of the mean and the variance of the different states
 - Use posterior draws from the latent state sequence to estimate the time point for a regime change in data
 
 
@@ -132,8 +132,8 @@ plot(regime_data[:,1], color="blue", label="", linewidth=2.5, ylabel="Volume [nl
 new_test = main_function(2, 11000, 1000, Γ_2, regime_data[:,1], υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
 
 #=
-ξ is the last time point in the initial regime. The Gibbs sampler allows for a posterior
-distribution of this quanttity.
+ξ is the time point for a regime change in data.
+The Gibbs sampler allows for a posterior distribution of this quanttity.
 =#
 ξ = new_test[5][1001:11000]  #Discard the initial 1000 draws as "burn-in" values.
 
