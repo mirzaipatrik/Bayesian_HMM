@@ -8,7 +8,9 @@ This project can be used to perform Bayesian parameter estimation of hidden Mark
 - Use posterior draws from the latent state sequence to estimate the time point for a regime change in data
 
 
-## Initialize code:
+## Bayesian parameter estimation:
+
+Let's start with initializing the functions that are used to run the Gibbs sampler:
 
 ```julia
 using CSV
@@ -94,7 +96,7 @@ plot!(μ[200:length(μ[:,1]),3], label="μ3", color="grey", linewidth=1.5)
 Let us now estimate the time point for a regime change in the data. Let's run the Gibbs sampler again:
 
 ```julia
-#Read the data set:
+#Read the new data set:
 regime_data = CSV.read("regime_data.txt")
 
 #Plot the data set:
@@ -115,12 +117,12 @@ plot(regime_data[:,1], color="blue", label="", linewidth=2.5, ylabel="Volume [nl
 κ_hyper = [1,1]
 
 #Run the Gibbs sampler:
-newest_test = main_function(2, 11000, 1000, Γ_newest, regime_data[:,1], υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
+new_test = main_function(2, 11000, 1000, Γ_2, regime_data[:,1], υ_hyper, σ2_hyper, μ_hyper, κ_hyper)
 
 #=
 ξ is the last time point in the initial regime. The Gibbs sampler allows for a posterior distribution of this quanttity.
 =#
-ξ = newest_test[5][1001:11000]  #Discard the initial 1000 draws as "burn-in" values.
+ξ = new_test[5][1001:11000]  #Discard the initial 1000 draws as "burn-in" values.
 
 #Histogram over the posteior distribution:
 histogram(ξ, guidefont=a, titlefont=a, tickfont=a, legendfont=a, xlims=[60000, 105000], label="", xlabel="ξ", ylabel="Frequency", color="blue", bins=50)
