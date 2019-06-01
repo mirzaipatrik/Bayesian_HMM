@@ -2,7 +2,7 @@
 
 ### Author: Patrik Mirzai
 
-This project can be used to perform Bayesian parameter estimation of hidden Markov models. A brief introduction to the different functions are given below. Some applications include:
+This project can be used to perform Bayesian parameter estimation of hidden Markov models. A brief introduction to the different functions are given below. Some application areas include:
 
 - Estimation of the mean and the variance of the different states
 - Use posterior draws from the latent state sequence to estimate the time point for a regime change in data
