@@ -7,6 +7,8 @@ This project can be used to perform Bayesian parameter estimation of hidden Mark
 - Estimation of the mean and the variance of the different states
 - Use posterior draws from the latent state sequence to estimate the time point for a regime change in data
 
+Please note that the entry file for this project is main.jls
+
 
 ## Bayesian parameter estimation:
 
@@ -16,11 +18,10 @@ Let's start with initializing the functions that are used to run the Gibbs sampl
 using CSV
 using Distributions
 using Statistics
-using Plots
 using Random
 using LinearAlgebra
 using DataFrames
-using Pycall
+using Plots
 
 #Import local functions
 include("MC_simulation.jl")
@@ -49,8 +50,8 @@ We can now import and plot data
 
 
 ```julia
-dat = CSV.read("My_data.csv", header=false);  #Read the data
-plot(dat[:,1])  #Plot the data
+dat = CSV.read("Functions/My_data.csv", DataFrame, delim=';', decimal=',', ignoreemptylines=true)
+plot(dat[:, 4], line = (:line), label = "Volume")
 
 #=
 Optional for saving figure to directory:
