@@ -118,9 +118,7 @@ function main_function(n_states, len_of_gibbs_seq, burn_in, Γ, raw_data, υ_hyp
     #Compute the AIC and BIC approximations
     maximum_log_likelihood = maximum(likelihood_vec)
     n_param = n_states*n_states - 1 + 2*n_states
-    AIC_score = AIC_approx(maximum_log_likelihood, n_param)
-    BIC_score = BIC_approx(maximum_log_likelihood, n_param, n_obs)
 
-    return μ_post_draws, σ2_post_draws, MC_chain, Γ, state_register, Γ_output, AIC_score, BIC_score
+    return μ_post_draws, σ2_post_draws, MC_chain, Γ, state_register, Γ_output
 
 end
