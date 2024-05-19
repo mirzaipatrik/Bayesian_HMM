@@ -14,6 +14,7 @@ function main_function(
     LPS = 0
 
     for j in 1:lps_iterations
+        print("Iteration: ", j, "out of", lps_iterations, "\n")
         global_counter = global_counter + 1
         #Allocate memory for μ and σ^2 draws
         σ2_post_draws = zeros(n_iter, n_states)
@@ -35,7 +36,7 @@ function main_function(
 
         #start our gibbs sampler
         for i = 1:n_iter
-            print("Iteration: ", i, "\n")
+            # print("Iteration: ", i, "\n")
             #Count number of visits to a state
             state_count = state_counts(n_states, MC_chain)
             #Group observations according to the MC_chain
@@ -126,11 +127,8 @@ function main_function(
 
         #Compute the LPS
         latest_state = MC_chain[length(MC_chain)]
-        println("Latest state: ", latest_state)
         TPM = Γ[latest_state, :]
-        println("TPM: ", TPM)
         sampled_state = rand(Categorical(TPM))
-        println("Sampled state: ", sampled_state)
         # compute the LPS
         LPS = LPS + log(
             pdf(
@@ -151,6 +149,7 @@ function main_function(
             LPS = LPS / lps_iterations
             return μ_post_draws, σ2_post_draws, MC_chain, Γ, state_register, Γ_output, LPS
         end
+    println("Iteration: ", j, "out of", lps_iterations, "\n")
     end
 end
 
