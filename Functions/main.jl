@@ -28,6 +28,7 @@ include("initial_dist_post.jl")
 include("state_dep_diag.jl")
 include("backward_function.jl")
 include("main_function.jl")
+include("MCMC_Simulation.jl")
 
 dat = CSV.read("Functions/My_data.csv", DataFrame, delim=';', decimal=',', ignoreemptylines=true)
 # plot(dat[1:49000, 4], line = (:line), label = "Volume")
@@ -48,26 +49,30 @@ n_iter = 400  #Number of iterations
 σ2_hyper = [1, 1]
 μ_hyper = [4, 5]
 κ_hyper = [1, 1]
-lps_iterations = 3000
+lps_iterations = 1000
 
 
 burn_in = 200
 
-MCMC_sim = main_function(
-    n_states,
-    n_iter,
-    burn_in,
-    Γ,
-    data,
-    υ_hyper,
-    σ2_hyper,
-    μ_hyper,
-    κ_hyper,
-    lps_iterations
-)
+# MCMC_sim = main_function(
+#     n_states,
+#     n_iter,
+#     burn_in,
+#     Γ,
+#     data,
+#     υ_hyper,
+#     σ2_hyper,
+#     μ_hyper,
+#     κ_hyper,
+#     lps_iterations
+# )
 
-n_states_sim = [3, 4, 5, 6, 7, 8]
+n_states_sim = [2, 3, 4, 5, 6, 7]
 Γ_sim = [
+    [
+        0.1 0.9;
+        0.2 0.8
+    ],
     [
         0.4 0.2 0.4;
         0.4 0.2 0.4;
@@ -99,49 +104,46 @@ n_states_sim = [3, 4, 5, 6, 7, 8]
         0.1 0.1 0.1 0.1 0.1 0.1 0.4; 0.1 0.1 0.1 0.1 0.1 0.1 0.4;
         0.1 0.1 0.1 0.1 0.1 0.1 0.4; 0.1 0.1 0.1 0.1 0.1 0.1 0.4;
         0.1 0.1 0.1 0.1 0.1 0.1 0.4
-    ],
-    [
-        0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3; 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3;
-        0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3; 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3;
-        0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3; 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3;
-        0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3; 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3
     ]
 ]
 υ_hyper_sim = [
+    [1, 1],
     [1, 1, 1],
     [1, 1, 1, 1],
     [1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
-σ2_hyper_sim = [
+σ2_hyper_sim = 
+[
+    [1, 1],
     [1, 1, 1],
     [1, 1, 1, 1],
     [1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1]
 ]
 μ_hyper_sim = [
+    [4, 5],
     [4, 5, 6],
     [4, 5, 6, 7],
     [4, 5, 6, 7, 8],
     [4, 5, 6, 7, 8, 9],
     [4, 5, 6, 7, 8, 9, 10],
-    [4, 5, 6, 7, 8, 9, 10, 11]
 ]
 κ_hyper_sim = [
+    [1, 1],
     [1, 1, 1],
     [1, 1, 1, 1],
     [1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
 results = Array{Any}(undef, 6)
+
+observationss = MCMC_Simulation([0.8 0.1 0.1; 0.1 0.8 0.1; 0.1 0.1 0.8], [0.2, 0.5, 0.3], [4, 6, 8], [1, 1, 1], 10000)
 
 Threads.@threads for i in 1:6
     results[i] = main_function(
@@ -149,7 +151,7 @@ Threads.@threads for i in 1:6
         n_iter,
         burn_in,
         Γ_sim[i],
-        data,
+        observationss,
         υ_hyper_sim[i],
         σ2_hyper_sim[i],
         μ_hyper_sim[i],
@@ -157,3 +159,14 @@ Threads.@threads for i in 1:6
         lps_iterations
     )
 end
+
+results[1][7]
+results[2][7]
+results[3][7]
+results[4][7]
+results[5][7]
+results[6][7]
+
+# plot(results[2][1][:, 1], label = "State 1", line = (:line, :red))
+# plot!(results[2][1][:, 2], label = "State 2", line = (:line, :blue))
+# plot!(results[2][1][:, 3], label = "State 3", line = (:line, :green))

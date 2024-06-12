@@ -127,8 +127,13 @@ function main_function(
 
         #Compute the LPS
         latest_state = MC_chain[length(MC_chain)]
-        TPM = Γ[latest_state, :]
-        sampled_state = rand(Categorical(TPM))
+        TP = Γ[latest_state, :]
+        sampled_state = rand(Categorical(TP))
+        println("Sampled state: ", sampled_state)
+
+
+        println("μ: ", μ_post_draws[n_iter, sampled_state])
+        println("σ: ", σ2_post_draws[n_iter, sampled_state])
         # compute the LPS
         LPS = LPS + log(
             pdf(
