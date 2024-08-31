@@ -30,9 +30,15 @@ function main_function(
         #Create matrix in order to compute posterior tpm, Γ
         Γ_output = zeros(n_states, n_states)
 
-        n_obs = length(raw_data) - lps_iterations + global_counter
+        n_obs = length(raw_data) - lps_iterations + global_counter - 1
+        training_data = raw_data[1:n_obs]
         MC_chain = MC_simulation(Γ, n_obs)  #Init a random MC
 
+        #used for later for computing the posterior parameters
+        υ_n = zeros(n_states)
+        σ2_n = zeros(n_states)
+        μ_n = zeros(n_states)
+        μ_var = zeros(n_states)
 
         #start our gibbs sampler
         for i = 1:n_iter
@@ -40,7 +46,7 @@ function main_function(
             #Count number of visits to a state
             state_count = state_counts(n_states, MC_chain)
             #Group observations according to the MC_chain
-            grouped_obser = grouped_obs(n_states, MC_chain, raw_data)
+            grouped_obser = grouped_obs(n_states, MC_chain, training_data)
             #Update posterior parameters
             σ2_post_pars = σ2_post_par(n_states, state_count, υ_hyper, σ2_hyper, κ_hyper, μ_hyper, grouped_obser)
 
@@ -74,7 +80,7 @@ function main_function(
             #Update the latent chain
 
             #Compute the backward probabilities
-            back_mat = backward_function(n_states, raw_data, Γ, latest_μ, latest_σ2)
+            back_mat = backward_function(n_states, training_data, Γ, latest_μ, latest_σ2)
 
             #Append the likelihood to the vector
             append!(likelihood_vec, back_mat[2])
@@ -83,7 +89,7 @@ function main_function(
 
             temp_prob_vec = fill(0.0, n_states)  #A placeholder
             for m = 1:n_states
-                temp_prob_vec[m] = initial_dist[m] * (pdf(Normal(latest_μ[m], sqrt(latest_σ2[m])), raw_data[1])) * back_mat[1][1, m]
+                temp_prob_vec[m] = initial_dist[m] * (pdf(Normal(latest_μ[m], sqrt(latest_σ2[m])), training_data[1])) * back_mat[1][1, m]
             end
             #Normalize temp_vec
             temp_prob_vec = temp_prob_vec / sum(temp_prob_vec)
@@ -96,7 +102,7 @@ function main_function(
                 latest_state = MC_chain[j-1]  #Use to condition on the current state
 
                 for m = 1:n_states  #Loop through all states
-                    temp_prob_vec[m] = Γ[latest_state, m] * (pdf(Normal(latest_μ[m], sqrt(latest_σ2[m])), raw_data[j])) * back_mat[1][j, m]
+                    temp_prob_vec[m] = Γ[latest_state, m] * (pdf(Normal(latest_μ[m], sqrt(latest_σ2[m])), training_data[j])) * back_mat[1][j, m]
                 end
                 #Normalize the temp_prob_vec
                 temp_prob_vec = temp_prob_vec / sum(temp_prob_vec)
@@ -104,10 +110,6 @@ function main_function(
                 MC_chain[j] = rand(Categorical(temp_prob_vec))
             end
 
-            #Compute the complete log-likelihood
-            normalized_log_likelihood = transpose(initial_dist) * state_dep_diag(n_states, raw_data[1], latest_μ, latest_σ2) * back_mat[1][1, :]
-            unnormalized_log_likelihood = log(normalized_log_likelihood) + back_mat[2]
-            append!(likelihood_vec, unnormalized_log_likelihood)
             #Compute the latest time the process visits the calibration period
 
             for l in 1:(length(MC_chain)-1)
@@ -121,29 +123,31 @@ function main_function(
             #Add the number of transitions to the Γ_output matrix
             if i > burn_in
                 Γ_output = Γ_output + transition_counter_mat
+                #Compute the complete log-likelihood
+                normalized_log_likelihood = transpose(initial_dist) * state_dep_diag(n_states, training_data[1], latest_μ, latest_σ2) * back_mat[1][1, :]
+                unnormalized_log_likelihood = log(normalized_log_likelihood) + back_mat[2]
+                append!(likelihood_vec, unnormalized_log_likelihood)
             end
 
         end
 
-        #Compute the LPS
-        latest_state = MC_chain[length(MC_chain)]
-        TP = Γ[latest_state, :]
-        sampled_state = rand(Categorical(TP))
-        println("Sampled state: ", sampled_state)
+        #Compute the LPS as well as sample an observation from the predictive distribution
+        lppd = 0 ##Log pointwise predictive density
+        for s = 1:100
+            latest_state = MC_chain[length(MC_chain)]
+            TP = Γ[latest_state, :]
+            sampled_state = rand(Categorical(TP))
+            sampled_variance = posterior_variance_draw(υ_n, σ2_n)[sampled_state]
+            sampled_mean = posterior_mean_draws(μ_n, μ_var)[sampled_state]
 
-
-        println("μ: ", μ_post_draws[n_iter, sampled_state])
-        println("σ: ", σ2_post_draws[n_iter, sampled_state])
-        # compute the LPS
-        LPS = LPS + log(
-            pdf(
-                Normal(
-                    μ_post_draws[n_iter, sampled_state],
-                    sqrt(σ2_post_draws[n_iter, sampled_state])
-                ),
-                raw_data[n_obs]
+            #Compute the LPPD
+            lppd = lppd + pdf(
+                Normal(sampled_mean, sqrt(sampled_variance)),
+                raw_data[n_obs+1]
             )
-        )
+        end
+
+        LPS = LPS + log(lppd / 100)
 
         #Normalize the posterior transition probabilities
         Γ_output = convert(Array{Float64}, Γ_output)
@@ -151,10 +155,15 @@ function main_function(
             Γ_output[l, :] = Γ_output[l, :] / sum(Γ_output[l, :])
         end
         if global_counter == lps_iterations
+            #Compute the AIC and BIC approximations
+            maximum_log_likelihood = maximum(likelihood_vec)
+            n_param = n_states * n_states - 1 + 2 * n_states
+            AIC_Score = -2 * maximum_log_likelihood + 2 * n_param
+            BIC_score = -2 * maximum_log_likelihood + n_param * log(n_obs)
             LPS = LPS / lps_iterations
-            return μ_post_draws, σ2_post_draws, MC_chain, Γ, state_register, Γ_output, LPS
+            return μ_post_draws, σ2_post_draws, MC_chain, Γ, state_register, Γ_output, LPS, AIC_Score, BIC_score
         end
-    println("Iteration: ", j, "out of", lps_iterations, "\n")
+        println("Iteration: ", j, "out of", lps_iterations, "\n")
     end
 end
 
